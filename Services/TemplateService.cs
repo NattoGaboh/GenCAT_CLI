@@ -25,7 +25,8 @@ namespace GenCAT_CLI.Services
             // 2. Crear proyectos
             CreateProjects(options, src);
 
-
+            // 3. Agregar proyectos al .sln
+            AddProjectsToSolution(options, root);
         }
 
         private void CreateProjects(ProjectOptions options, string src)
@@ -34,6 +35,16 @@ namespace GenCAT_CLI.Services
             _cli.Run($"new classlib -n {options.Name}.Application", src);
             _cli.Run($"new classlib -n {options.Name}.Domain", src);
             _cli.Run($"new classlib -n {options.Name}.Infrastructure", src);
+        }
+
+        private void AddProjectsToSolution(ProjectOptions options, string root)
+        {
+            var src = Path.Combine(root, "src");
+
+            _cli.Run($"sln add src/{options.Name}.Api/{options.Name}.Api.csproj", root);
+            _cli.Run($"sln add src/{options.Name}.Application/{options.Name}.Application.csproj", root);
+            _cli.Run($"sln add src/{options.Name}.Domain/{options.Name}.Domain.csproj", root);
+            _cli.Run($"sln add src/{options.Name}.Infrastructure/{options.Name}.Infrastructure.csproj", root);
         }
     }
 }
