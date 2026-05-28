@@ -13,7 +13,7 @@ namespace GenCAT_CLI.Services
 
         public void GenerateProject(ProjectOptions options)
         {
-            var root = Path.Combine(Directory.GetCurrentDirectory(), options.Name);
+            var root = Path.Combine(Directory.GetCurrentDirectory(), "..", "projects", options.Name);
             var src = Path.Combine(root, "src");
 
             Directory.CreateDirectory(root);
