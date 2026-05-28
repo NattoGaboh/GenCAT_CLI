@@ -9,13 +9,31 @@ namespace GenCAT_CLI.Services
 {
     public class TemplateService
     {
+        private readonly DotnetCliService _cli = new();
+
         public void GenerateProject(ProjectOptions options)
         {
-            var templatePath = Path.Combine(Directory.GetCurrentDirectory(), "Templates", "CleanArchitecture", "TemplateProject");
-            var outputPath = Path.Combine(Directory.GetCurrentDirectory(), options.Name);
+            var root = Path.Combine(Directory.GetCurrentDirectory(), options.Name);
+            var src = Path.Combine(root, "src");
 
-            var generator = new FileGeneratorService();
-            generator.Generate(templatePath, outputPath, options);
+            Directory.CreateDirectory(root);
+            Directory.CreateDirectory(src);
+
+            // 1. Crear solución
+            _cli.Run($"new sln -n {options.Name}", root);
+
+            // 2. Crear proyectos
+            CreateProjects(options, src);
+
+
+        }
+
+        private void CreateProjects(ProjectOptions options, string src)
+        {
+            _cli.Run($"new webapi -n {options.Name}.Api", src);
+            _cli.Run($"new classlib -n {options.Name}.Application", src);
+            _cli.Run($"new classlib -n {options.Name}.Domain", src);
+            _cli.Run($"new classlib -n {options.Name}.Infrastructure", src);
         }
     }
 }
