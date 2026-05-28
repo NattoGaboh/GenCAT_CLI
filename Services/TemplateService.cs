@@ -27,6 +27,12 @@ namespace GenCAT_CLI.Services
 
             // 3. Agregar proyectos al .sln
             AddProjectsToSolution(options, root);
+
+            // 4. Agregar referencias
+            AddReferences(options, src);
+
+            // 5. Generar contenido base (templates)
+            GenerateBaseFiles(options, src);
         }
 
         private void CreateProjects(ProjectOptions options, string src)
@@ -39,12 +45,65 @@ namespace GenCAT_CLI.Services
 
         private void AddProjectsToSolution(ProjectOptions options, string root)
         {
-            var src = Path.Combine(root, "src");
+            _ = Path.Combine(root, "src");
 
             _cli.Run($"sln add src/{options.Name}.Api/{options.Name}.Api.csproj", root);
             _cli.Run($"sln add src/{options.Name}.Application/{options.Name}.Application.csproj", root);
             _cli.Run($"sln add src/{options.Name}.Domain/{options.Name}.Domain.csproj", root);
             _cli.Run($"sln add src/{options.Name}.Infrastructure/{options.Name}.Infrastructure.csproj", root);
+        }
+
+
+        private void AddReferences(ProjectOptions options, string src)
+        {
+            var api = $"{options.Name}.Api";
+            var app = $"{options.Name}.Application";
+            var domain = $"{options.Name}.Domain";
+            var infra = $"{options.Name}.Infrastructure";
+
+            _cli.Run($"add {api}/{api}.csproj reference {app}/{app}.csproj", src);
+            _cli.Run($"add {api}/{api}.csproj reference {infra}/{infra}.csproj", src);
+
+            _cli.Run($"add {app}/{app}.csproj reference {domain}/{domain}.csproj", src);
+
+            _cli.Run($"add {infra}/{infra}.csproj reference {app}/{app}.csproj", src);
+        }
+
+
+        private static void GenerateBaseFiles(ProjectOptions options, string src)
+        {
+            var domainPath = Path.Combine(src, $"{options.Name}.Domain", "BaseEntity.cs");
+
+            File.WriteAllText(domainPath, $@"
+namespace {options.Name}.Domain;
+
+public abstract class BaseEntity
+{{
+    public Guid Id {{ get; set; }}
+}}
+");
+
+            var appPath = Path.Combine(src, $"{options.Name}.Application", "DependencyInjection.cs");
+
+            File.WriteAllText(appPath, $@"
+namespace {options.Name}.Application;
+
+public static class DependencyInjection
+{{
+    public static void AddApplication() {{ }}
+}}
+");
+
+            var infraPath = Path.Combine(src, $"{options.Name}.Infrastructure", "DependencyInjection.cs");
+
+            File.WriteAllText(infraPath, $@"
+namespace {options.Name}.Infrastructure;
+
+public static class DependencyInjection
+{{
+    public static void AddInfrastructure() {{ }}
+}}
+");
         }
     }
 }
