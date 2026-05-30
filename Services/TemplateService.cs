@@ -33,6 +33,9 @@ namespace GenCAT_CLI.Services
 
             // 5. Generar contenido base (templates)
             GenerateBaseFiles(options, src);
+
+            // 6. Instalar Paquetes
+            InstallPackages(options, src);
         }
 
         private void CreateProjects(ProjectOptions options, string src)
@@ -104,6 +107,27 @@ public static class DependencyInjection
     public static void AddInfrastructure() {{ }}
 }}
 ");
+        }
+
+        private void InstallPackages(ProjectOptions options, string src)
+        {
+            var infra = $"{options.Name}.Infrastructure";
+            var api = $"{options.Name}.Api";
+
+            var cli = new DotnetCliService();
+
+            // Dapper
+            cli.Run($"add {infra}/{infra}.csproj package Dapper", src);
+
+            // DB providers
+            if (options.Database == "PostgreSQL")
+                cli.Run($"add {infra}/{infra}.csproj package Npgsql", src);
+
+            if (options.Database == "SQL Server")
+                cli.Run($"add {infra}/{infra}.csproj package Microsoft.Data.SqlClient", src);
+
+            // Configuración
+            cli.Run($"add {api}/{api}.csproj package Microsoft.Extensions.Configuration", src);
         }
     }
 }

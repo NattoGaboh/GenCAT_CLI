@@ -1,0 +1,12 @@
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "{{ConnectionString}}"
+  },
+  "Database": "{{Database}}",
+  "Jwt": {
+    "Key": "{{JwtKey}}",
+    "Issuer": "{{ProjectName}}",
+    "Audience": "{{ProjectName}}"
+  },
+  "MultiTenant": "{{MultiTenant}}"
+}
