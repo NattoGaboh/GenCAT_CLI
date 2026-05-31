@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using GenCAT_CLI.Services;
 
 namespace GenCAT_CLI.Commands
 {
@@ -12,13 +13,14 @@ namespace GenCAT_CLI.Commands
     {
         public override int Execute(CommandContext context, AddEndpointSettings settings, CancellationToken cancellationToken)
         {
+            var project = settings.Project;
             var module = settings.Module;
             var action = settings.Action;
 
             var generator = new EndpointGeneratorService();
-            generator.Generate(module, action);
+            generator.Generate(project, module, action);
 
-            AnsiConsole.MarkupLine($"[green]✅ Endpoint {module} {action} generado![/]");
+            AnsiConsole.MarkupLine($"[green] Project {project} Endpoint {module} {action} generado![/]");
 
             return 0;
         }
